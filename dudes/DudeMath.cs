@@ -42,6 +42,5 @@ namespace Things
 			return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
 		}
 	}
-
 }
 

@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gui", "gui\gui.csproj", "{2541FF25-850C-44B9-93C1-8925805C0A16}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dudes", "dudes\dudes.csproj", "{94BF3A3B-AEBC-48CD-9BC7-3EE0274FEB5E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuralNetwork", "..\..\gits\CheapAOI\NeuralNetwork\NeuralNetwork.csproj", "{8895EEF3-0A91-456A-AE07-2C820EBB38D9}"
@@ -13,16 +11,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "console-stuff", "console-st
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "world", "world\world.csproj", "{EE3B92C9-B393-41C6-A7BF-62B4B19484FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gui", "gui\gui.csproj", "{720D52D2-726D-4ED4-B9C7-8D48A6D16C53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2541FF25-850C-44B9-93C1-8925805C0A16}.Debug|x86.ActiveCfg = Debug|x86
-		{2541FF25-850C-44B9-93C1-8925805C0A16}.Debug|x86.Build.0 = Debug|x86
-		{2541FF25-850C-44B9-93C1-8925805C0A16}.Release|x86.ActiveCfg = Release|x86
-		{2541FF25-850C-44B9-93C1-8925805C0A16}.Release|x86.Build.0 = Release|x86
+		{720D52D2-726D-4ED4-B9C7-8D48A6D16C53}.Debug|x86.ActiveCfg = Debug|x86
+		{720D52D2-726D-4ED4-B9C7-8D48A6D16C53}.Debug|x86.Build.0 = Debug|x86
+		{720D52D2-726D-4ED4-B9C7-8D48A6D16C53}.Release|x86.ActiveCfg = Release|x86
+		{720D52D2-726D-4ED4-B9C7-8D48A6D16C53}.Release|x86.Build.0 = Release|x86
 		{8895EEF3-0A91-456A-AE07-2C820EBB38D9}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{8895EEF3-0A91-456A-AE07-2C820EBB38D9}.Debug|x86.Build.0 = Debug|Any CPU
 		{8895EEF3-0A91-456A-AE07-2C820EBB38D9}.Release|x86.ActiveCfg = Release|Any CPU

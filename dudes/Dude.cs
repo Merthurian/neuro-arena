@@ -7,31 +7,31 @@ using DudeWorld;
 
 namespace Things
 {
-	public struct Spacials
-	{
-		public double x, y, angle, velocity, mass, d;
-	}
-
 	public class Thing
 	{
 		static int nextID = 0;
 		public int id;
 
-		public static World world = new World();
+		public Random random = new Random ();
+
+		public static World world;
 
 		public static List<Thing> things = new List<Thing> ();
 
 		public Spacials spacials;
 		public double red, green, blue;
 
-		public string name;
-
-		public Thing(string _name)
+		public Thing()
 		{
 			id = nextID++;
-			name = _name;
 			things.Add (this);
+			spacials = world.dudeSpacials;
 		}
+
+		public static void init (World _world){
+			world = _world;
+		}
+
 	}
 
 	public enum nnInputs
@@ -43,33 +43,46 @@ namespace Things
 		rightEyeG,
 		rightEyeB,
 		pressrue,
+		distToCentre,
 		energy,
 		charge,
 		feedback0,
 		feedback1,
-		feedback2
+		feedback2,
+		feedback3,
+		thrusterA0,
+		thrusterA1,
+		thrusterA2,
+		thrusterA3
 	}
-
-
+		
 	public enum nnOutputs
 	{
 		colorR,
 		colorG,
 		colorB,
-		thrust,
 		turn,
-		act,
 		eyeAngle,
 		focus,
 		feedback0,
 		feedback1,
-		feedback2
+		feedback2,
+		feedback3,
+		thrusterA0,
+		thrusterA1,
+		thrusterA2,
+		thrusterA3,
+		thrusterT0,
+		thrusterT1,
+		thrusterT2,
+		thrusterT3
 	}
-
 
 	public class Dude : Thing
 	{
 		NN nn = new NN (Enum.GetNames (typeof(nnInputs)).Length, Enum.GetNames (typeof(nnOutputs)).Length, 3, 3);
+
+		public static List<Dude> allTheDudes = new List<Dude> ();
 
 		double[] leftEyeSense = new double[3];
 		double[] rightEyeSense = new double[3];
@@ -77,10 +90,13 @@ namespace Things
 		double[] ins = new double[Enum.GetNames (typeof(nnInputs)).Length];
 		double[] outs = new double[Enum.GetNames (typeof(nnOutputs)).Length];
 
-		double eyeAngle = 2; 	//nn will controll these both
-		double focus = 0.1;			//between mapping to 0 - 2
+		double[,] thrusters = new double[4,2];//angle
+
+		double eyeAngle = 1; 	//nn will controll these both
+		double focus = 1;		//between mapping to 0 - 2
 
 		double turn;
+		double distToCentre = 0;
 
 		double pressure = 0;
 
@@ -90,14 +106,42 @@ namespace Things
 		//Vector leftEyePos = new Vector ();
 		//Vector rightEyePos = new Vector ();
 
-		public Dude (string _name, Spacials sp)
-			: base (_name)
+		static public void SpawnDudes(int howManyDudes)
+		{
+			for (int i = 0; i < howManyDudes; i++) {
+				Dude dude = new Dude ();
+				allTheDudes.Add (dude);
+			}
+		}
+
+		public Dude()
+		{
+			double r = world.radius;
+
+			Vector point = new Vector (DudeMath.map (random.NextDouble (), 0, 1, -r, r),
+				DudeMath.map (random.NextDouble (), 0, 1, -r, r));
+
+			while((point - spacials.pos).Length > world.radius)
+				point = new Vector (DudeMath.map (random.NextDouble (), 0, 1, -r, r),
+					DudeMath.map (random.NextDouble (), 0, 1, -r, r));
+			
+			teleport (point);
+		}
+
+		public Dude (Spacials sp)
 		{
 			spacials = sp;
 		}
 
+		public void teleport (Vector pos)
+		{
+			spacials.pos = pos;
+		}
+
 		public void ponder()
 		{
+			distToCentre = (new Vector(0,0) - spacials.pos).Length;
+	
 			ins [(int)nnInputs.leftEyeR] = leftEyeSense [0];
 			ins [(int)nnInputs.leftEyeG] = leftEyeSense [1];
 			ins [(int)nnInputs.leftEyeB] = leftEyeSense [2];
@@ -105,9 +149,16 @@ namespace Things
 			ins [(int)nnInputs.rightEyeG] = rightEyeSense [1];
 			ins [(int)nnInputs.rightEyeB] = rightEyeSense [2];
 			ins [(int)nnInputs.pressrue] = pressure;
+			ins [(int)nnInputs.distToCentre] = distToCentre;
+
 			ins [(int)nnInputs.feedback0] = outs[(int)nnOutputs.feedback0];
 			ins [(int)nnInputs.feedback1] = outs[(int)nnOutputs.feedback1];
 			ins [(int)nnInputs.feedback2] = outs[(int)nnOutputs.feedback2];
+			ins [(int)nnInputs.feedback3] = outs[(int)nnOutputs.feedback3];
+			ins [(int)nnInputs.thrusterA0] = thrusters [0,0];
+			ins [(int)nnInputs.thrusterA1] = thrusters [1,0];
+			ins [(int)nnInputs.thrusterA2] = thrusters [2,0];
+			ins [(int)nnInputs.thrusterA3] = thrusters [3,0];
 
 			outs = nn.FeedForward (ins);
 		}
@@ -115,11 +166,7 @@ namespace Things
 		public void act()
 		{
 			energy = DudeMath.constrain (energy + world.energy,0,1);
-			if (outs [(int)nnOutputs.act] < 0) {
-				charge = DudeMath.constrain (charge + world.charge,0,1);
-				return;
-			}
-
+			charge = DudeMath.constrain (charge + world.charge,0,1);
 			eyeAngle = DudeMath.constrain(eyeAngle + (outs[(int)nnOutputs.eyeAngle] * 0.01), 0, 2);
 			focus = DudeMath.map (outs [(int)nnOutputs.eyeAngle], -1, 1, 0, 2);
 			red = DudeMath.map(outs [(int)nnOutputs.colorR],-1,1,0,1);
@@ -132,16 +179,34 @@ namespace Things
 			turn += outs [(int)nnOutputs.turn] * 0.03;
 
 			if (turn > 0.1)
-				turn -= 0.2;
+				turn = 0.1;
 			if (turn < -0.1)
-				turn += 0.2;
+				turn = 0.1;
 
 			spacials.angle = DudeMath.wrapPi (spacials.angle + turn);
-			spacials.velocity = DudeMath.constrain (spacials.velocity + (outs [(int)nnOutputs.thrust] * 0.05),-1,1);
-			spacials.velocity *= 1 - world.friction;
 
-			spacials.x += Math.Sin (spacials.angle) * spacials.velocity * 5;
-			spacials.y += Math.Cos (spacials.angle) * spacials.velocity * 5;
+			doThrusters ();
+		}
+		public void doThrusters()
+		{
+			thrusters[0,0] = DudeMath.wrapPi (thrusters[0,0] + (outs[(int)nnOutputs.thrusterA0]*0.1));
+			thrusters[1,0] = DudeMath.wrapPi (thrusters[1,0] + (outs[(int)nnOutputs.thrusterA1]*0.1));
+			thrusters[2,0] = DudeMath.wrapPi (thrusters[2,0] + (outs[(int)nnOutputs.thrusterA2]*0.1));
+			thrusters[3,0] = DudeMath.wrapPi (thrusters[3,0] + (outs[(int)nnOutputs.thrusterA3]*0.1));
+
+
+			thrusters[0,1] = DudeMath.map (outs [(int)nnOutputs.thrusterT0], -1, 1, 0, 1);
+			thrusters[1,1] = DudeMath.map (outs [(int)nnOutputs.thrusterT1], -1, 1, 0, 1);
+			thrusters[2,1] = DudeMath.map (outs [(int)nnOutputs.thrusterT2], -1, 1, 0, 1);
+			thrusters[3,1] = DudeMath.map (outs [(int)nnOutputs.thrusterT3], -1, 1, 0, 1);
+
+
+			for (int i = 0; i < 4; i++) {
+				double angle = DudeMath.wrapPi (spacials.angle + thrusters [i,0]);
+
+				spacials.pos.X += Math.Sin (angle) * thrusters[i,1] * 5;
+				spacials.pos.Y += Math.Cos (angle) * thrusters[i,1] * 5;
+			}
 		}
 
 		public void checkSenses()
@@ -161,12 +226,9 @@ namespace Things
 				if (thingy.id == this.id) 
 					continue;
 
-				Vector v1 = new Vector (spacials.x, spacials.y);
-				Vector v2 = new Vector (thingy.spacials.x, thingy.spacials.y);
+				double angleBetweenDudes = Math.Atan2 (thingy.spacials.pos.X - spacials.pos.X, thingy.spacials.pos.Y - spacials.pos.Y);
 
-				double angleBetweenDudes = Math.Atan2 (thingy.spacials.x - spacials.x, thingy.spacials.y - spacials.y);
-
-				double dist = (v1 - v2).Length;
+				double dist = (spacials.pos - thingy.spacials.pos).Length;
 				pressure += dist*thingy.spacials.mass; //See tanh later, just taking advantage of this expensive number
 
 				double leftEyeDifference = DudeMath.aDiff (leftAngle, angleBetweenDudes);
@@ -201,7 +263,7 @@ namespace Things
 			pressure = Math.Tanh (pressure);//Squish it down
 		}
 
-		void update()
+		public void update()
 		{
 			checkSenses ();
 			ponder ();
@@ -216,10 +278,13 @@ namespace Things
 
 			Spacials pd = defaultSpacials ();
 
-			Dude spinDude = new Dude ("Spin", pd);
+			//Dude spinDude = new Dude ("Spin", pd);
+			Dude spinDude = new Dude ();
 			spinDude.red = 0;
 			spinDude.green = 0;
 			spinDude.blue = 0;
+
+			spinDude.update ();
 
 			//
 
@@ -233,13 +298,14 @@ namespace Things
 
 
 
-			Dude greenDude = new Dude ("Green", pd);
+			//Dude greenDude = new Dude ("Green", pd);
+			Dude greenDude = new Dude ();
 			greenDude.red = 1;
 			greenDude.green = 1;
 			greenDude.blue = 1;
 
 			//farDude.pd.x = 100;
-			greenDude.spacials.x = -10;
+			greenDude.spacials.pos.X = -10;
 
 //
 //			Dude blueDude = new Dude ("Blue", pd);
@@ -277,12 +343,10 @@ namespace Things
 		{
 			Spacials spacials = new Spacials ();
 
-			spacials.x = 0;
-			spacials.y = 0;
+			spacials.pos = new Vector();
 			spacials.angle = 0;
-			spacials.velocity = 0;
 			spacials.mass = 1;
-			spacials.d = 1;
+			spacials.radius = 1;
 
 			return spacials;
 		}
