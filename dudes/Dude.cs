@@ -91,7 +91,7 @@ namespace Things
 		double[] ins = new double[Enum.GetNames (typeof(nnInputs)).Length];
 		double[] outs = new double[Enum.GetNames (typeof(nnOutputs)).Length];
 
-		double[,] thrusters = new double[4,2];//angle
+		public double[,] thrusters = new double[4,2];//angle
 
 		public double eyeAngle = 1; 	//nn will controll these both
 		public double focus = 1;		//between mapping to 0 - 2
@@ -170,11 +170,14 @@ namespace Things
 		{
 			energy = DudeMath.constrain (energy + world.energy,0,1);
 			charge = DudeMath.constrain (charge + world.charge,0,1);
-			eyeAngle = DudeMath.constrain(eyeAngle + (outs[(int)nnOutputs.eyeAngle] * 0.01), 0, 2);
-			focus = DudeMath.map (outs [(int)nnOutputs.eyeAngle], -1, 1, 0, 2);
-			red = DudeMath.map(outs [(int)nnOutputs.colorR],-1,1,0,1);
-			green = DudeMath.map(outs [(int)nnOutputs.colorG],-1,1,0,1);
-			blue = DudeMath.map(outs [(int)nnOutputs.colorB],-1,1,0,1);
+			//eyeAngle = DudeMath.constrain(eyeAngle + (outs[(int)nnOutputs.eyeAngle] * 0.01), 0, 2);
+			//focus = DudeMath.map (outs [(int)nnOutputs.eyeAngle], -1, 1, 0, 2);
+//			red = DudeMath.map(outs [(int)nnOutputs.colorR],-1,1,0,1);
+//			green = DudeMath.map(outs [(int)nnOutputs.colorG],-1,1,0,1);
+//			blue = DudeMath.map(outs [(int)nnOutputs.colorB],-1,1,0,1);
+			red = 1;
+			green = 0;
+			blue = 0;
 		}
 
 		public void manouver()
@@ -207,8 +210,8 @@ namespace Things
 			for (int i = 0; i < 4; i++) {
 				double angle = DudeMath.wrapPi (spacials.angle + thrusters [i,0]);
 
-				spacials.pos.X += Math.Sin (angle) * thrusters[i,1] * 5;
-				spacials.pos.Y += Math.Cos (angle) * thrusters[i,1] * 5;
+				spacials.pos.X += Math.Sin (angle) * thrusters[i,1] * 0.1;
+				spacials.pos.Y += Math.Cos (angle) * thrusters[i,1] * 0.1;
 			}
 		}
 
@@ -237,13 +240,13 @@ namespace Things
 				double leftEyeDifference = DudeMath.aDiff (leftAngle, angleBetweenDudes);
 				double rightEyeDifference = DudeMath.aDiff (rightAngle, angleBetweenDudes);
 
-				if ((leftEyeDifference > -focus) && (leftEyeDifference < focus))
+				if ((leftEyeDifference > -focus/2) && (leftEyeDifference < focus/2))
 				{       
 					leftEyeSense[0] += 16*(thingy.red/dist);
 					leftEyeSense[1] += 16*(thingy.green/dist);
 					leftEyeSense[2] += 16*(thingy.blue/dist);  
 				}
-				if ((rightEyeDifference > -focus) && (rightEyeDifference < focus))
+				if ((rightEyeDifference > -focus/2) && (rightEyeDifference < focus/2))
 				{ 
 					rightEyeSense[0] += 16*(thingy.red/dist);
 					rightEyeSense[1] += 16*(thingy.green/dist);

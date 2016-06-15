@@ -11,7 +11,9 @@ namespace NeuralNetwork
         static Random r = new Random();
         double learningCoefficient; //Used to tune backpropagation
 
-        int totalWeights = 0;       //Or, total numer of connections between all neurons
+        int totalWeights = 0;       //
+
+		double[] result;
 
         public List<Neuron> inputLayer = new List<Neuron>();
         public List<List<Neuron>> hiddenLayers = new List<List<Neuron>>();
@@ -28,7 +30,6 @@ namespace NeuralNetwork
             inputLayer.Add(new Neuron());   //These two will be used to pass a -1 and 1 constantly to the network
             inputLayer.Add(new Neuron());   //Sometimes called biasing inputs. The XOR problem wouldn't converge
                                             //until I did this.
-
             
             List<Neuron> previousLayer = inputLayer; //Placeholder for connetion purposes
 
@@ -58,6 +59,9 @@ namespace NeuralNetwork
                     totalWeights++;
                 }
             } 
+
+			result = new double[outputLayer.Count];
+
             #endregion
 
             learningCoefficient = 0.5 / totalWeights;
@@ -114,8 +118,6 @@ namespace NeuralNetwork
                 outputLayer[i].value = Sigmoid(sumOfWeightedInputs);
             } 
             #endregion
-
-            double[] result = new double[outputLayer.Count];
 
             for (int i = 0; i < result.Length; i++)
             {

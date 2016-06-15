@@ -10,31 +10,44 @@ using System.Threading;
 class SharpApp : Gtk.Window {
 
 	World world = new World();
+	DrawingArea darea = new DrawingArea ();
 
 	public SharpApp() : base("Center")
 	{
 		//Backend Dude stuff
 		Thing.init(world);
 
-		Dude.SpawnDudes (2);
+		Dude.SpawnDudes (40);
 
 		//Gtk and Cairo things
 		SetDefaultSize(400, 400);
 		SetPosition(WindowPosition.Center);
 		DeleteEvent += delegate { Application.Quit(); };
 
-		DrawingArea darea = new DrawingArea ();
 		darea.ExposeEvent += OnExpose;
 
 		Add (darea);
 
 		ShowAll();
+
+		//loop ();
+		ThreadPool.QueueUserWorkItem(new WaitCallback(loop));
+
+		GLib.Timeout.Add(14, new GLib.TimeoutHandler(OnTimer));
 	}
+
+	bool OnTimer() 
+	{ 
+		darea.QueueDraw();
+		return true;
+	}     
 
 	void OnExpose(object sender, ExposeEventArgs args)
 	{
 		DrawingArea darea = (DrawingArea)sender;
 		Cairo.Context cairoContext = Gdk.CairoHelper.Create(darea.GdkWindow);
+
+		//cairoContext.Antialias = Antialias.None;
 
 		int width, height;
 		width = Allocation.Width;
@@ -45,14 +58,14 @@ class SharpApp : Gtk.Window {
 		Circle (cairoContext, 0, 0, world.radius, 0,0,0);
 
 		foreach (var dude in Dude.allTheDudes) {
-			dude.update ();
+			//dude.update ();
 			Circle (cairoContext, dude.spacials.pos.X, dude.spacials.pos.Y, dude.spacials.radius, dude.red,dude.green,dude.blue);
 			Arc(cairoContext, 
 				dude.spacials.pos.X,
 				dude.spacials.pos.Y,
-				dude.spacials.radius*1.2,
-				-dude.eyeAngle - dude.focus/2,
-				-dude.eyeAngle + dude.focus/2,
+				dude.spacials.radius*2,
+				dude.spacials.angle -dude.eyeAngle - dude.focus/2,
+				dude.spacials.angle -dude.eyeAngle + dude.focus/2,
 				dude.leftEyeSense[0],
 				dude.leftEyeSense[1],
 				dude.leftEyeSense[2]);
@@ -60,7 +73,7 @@ class SharpApp : Gtk.Window {
 			Arc(cairoContext, 
 				dude.spacials.pos.X,
 				dude.spacials.pos.Y,
-				dude.spacials.radius*1.2,
+				dude.spacials.radius*2,
 				dude.spacials.angle + dude.eyeAngle - dude.focus/2,
 				dude.spacials.angle + dude.eyeAngle + dude.focus/2,
 				dude.rightEyeSense[0],
@@ -68,7 +81,6 @@ class SharpApp : Gtk.Window {
 				dude.rightEyeSense[2]);
 			
 		}
-
 
 		#region cleanup
 		((IDisposable) cairoContext.Target).Dispose();                                      
@@ -87,6 +99,15 @@ class SharpApp : Gtk.Window {
 		cairoContext.SetSourceRGB(r, g, b);
 		cairoContext.Arc (x, y, radius, DudeMath.wrapPi(start), DudeMath.wrapPi(stop));
 		cairoContext.Stroke ();
+	}
+
+
+	static void loop(object o)
+	{
+		foreach (var dude in Dude.allTheDudes) {
+			dude.update ();
+		}
+		loop (o);
 	}
 
 	public static void Main()
