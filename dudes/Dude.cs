@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.IO;
 using DudeWorld;
+using System.Security.Cryptography;
 
 namespace Things
 {
@@ -12,7 +13,7 @@ namespace Things
 		static int nextID = 0;
 		public int id;
 
-		public Random random = new Random ();
+		public static Random random = new Random ();
 
 		public static World world;
 
@@ -84,16 +85,16 @@ namespace Things
 
 		public static List<Dude> allTheDudes = new List<Dude> ();
 
-		double[] leftEyeSense = new double[3];
-		double[] rightEyeSense = new double[3];
+		public double[] leftEyeSense = new double[3];
+		public double[] rightEyeSense = new double[3];
 
 		double[] ins = new double[Enum.GetNames (typeof(nnInputs)).Length];
 		double[] outs = new double[Enum.GetNames (typeof(nnOutputs)).Length];
 
 		double[,] thrusters = new double[4,2];//angle
 
-		double eyeAngle = 1; 	//nn will controll these both
-		double focus = 1;		//between mapping to 0 - 2
+		public double eyeAngle = 1; 	//nn will controll these both
+		public double focus = 1;		//between mapping to 0 - 2
 
 		double turn;
 		double distToCentre = 0;
@@ -124,7 +125,9 @@ namespace Things
 			while((point - spacials.pos).Length > world.radius)
 				point = new Vector (DudeMath.map (random.NextDouble (), 0, 1, -r, r),
 					DudeMath.map (random.NextDouble (), 0, 1, -r, r));
-			
+
+			spacials.angle = DudeMath.map (random.NextDouble (), 0, 1, -Math.PI, Math.PI);
+
 			teleport (point);
 		}
 
