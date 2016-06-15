@@ -81,7 +81,7 @@ namespace Things
 
 	public class Dude : Thing
 	{
-		NN nn = new NN (Enum.GetNames (typeof(nnInputs)).Length, Enum.GetNames (typeof(nnOutputs)).Length, 3, 3);
+		NN nn = new NN (Enum.GetNames (typeof(nnInputs)).Length, Enum.GetNames (typeof(nnOutputs)).Length, Enum.GetNames (typeof(nnInputs)).Length, 7);
 
 		public static List<Dude> allTheDudes = new List<Dude> ();
 
@@ -172,12 +172,12 @@ namespace Things
 			charge = DudeMath.constrain (charge + world.charge,0,1);
 			//eyeAngle = DudeMath.constrain(eyeAngle + (outs[(int)nnOutputs.eyeAngle] * 0.01), 0, 2);
 			//focus = DudeMath.map (outs [(int)nnOutputs.eyeAngle], -1, 1, 0, 2);
-//			red = DudeMath.map(outs [(int)nnOutputs.colorR],-1,1,0,1);
-//			green = DudeMath.map(outs [(int)nnOutputs.colorG],-1,1,0,1);
-//			blue = DudeMath.map(outs [(int)nnOutputs.colorB],-1,1,0,1);
-			red = 1;
-			green = 0;
-			blue = 0;
+			red = DudeMath.map(outs [(int)nnOutputs.colorR],-1,1,0,1);
+			green = DudeMath.map(outs [(int)nnOutputs.colorG],-1,1,0,1);
+			blue = DudeMath.map(outs [(int)nnOutputs.colorB],-1,1,0,1);
+//			red = 1;
+//			green = 0;
+//			blue = 0;
 		}
 
 		public void manouver()
@@ -189,7 +189,7 @@ namespace Things
 			if (turn < -0.1)
 				turn = 0.1;
 
-			spacials.angle = DudeMath.wrapPi (spacials.angle + turn);
+			//spacials.angle = DudeMath.wrapPi (spacials.angle + turn);
 
 			doThrusters ();
 		}
@@ -208,10 +208,10 @@ namespace Things
 
 
 			for (int i = 0; i < 4; i++) {
-				double angle = DudeMath.wrapPi (spacials.angle + thrusters [i,0]);
+				//double angle = DudeMath.wrapPi (spacials.angle + thrusters [i,0]);
 
-				spacials.pos.X += Math.Sin (angle) * thrusters[i,1] * 0.1;
-				spacials.pos.Y += Math.Cos (angle) * thrusters[i,1] * 0.1;
+				//spacials.pos.X += Math.Sin (angle) * thrusters[i,1] * 1;
+				//spacials.pos.Y += Math.Cos (angle) * thrusters[i,1] * 1;
 			}
 		}
 
@@ -232,7 +232,7 @@ namespace Things
 				if (thingy.id == this.id) 
 					continue;
 
-				double angleBetweenDudes = Math.Atan2 (thingy.spacials.pos.X - spacials.pos.X, thingy.spacials.pos.Y - spacials.pos.Y);
+				double angleBetweenDudes = Math.Atan2 (spacials.pos.X - thingy.spacials.pos.X, spacials.pos.Y - thingy.spacials.pos.Y);
 
 				double dist = (spacials.pos - thingy.spacials.pos).Length;
 				pressure += dist*thingy.spacials.mass; //See tanh later, just taking advantage of this expensive number

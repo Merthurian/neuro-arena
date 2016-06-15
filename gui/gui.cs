@@ -11,13 +11,18 @@ class SharpApp : Gtk.Window {
 
 	World world = new World();
 	DrawingArea darea = new DrawingArea ();
+	Thing specialThing;
 
 	public SharpApp() : base("Center")
 	{
 		//Backend Dude stuff
 		Thing.init(world);
+		Dude.SpawnDudes (1);
 
-		Dude.SpawnDudes (40);
+		specialThing = new Thing ();
+		specialThing.red = 1;
+		specialThing.green = 1;
+		specialThing.blue = 1;
 
 		//Gtk and Cairo things
 		SetDefaultSize(400, 400);
@@ -25,13 +30,23 @@ class SharpApp : Gtk.Window {
 		DeleteEvent += delegate { Application.Quit(); };
 
 		darea.ExposeEvent += OnExpose;
+		darea.AddEvents ((int) 
+			(EventMask.ButtonPressMask    
+				|EventMask.ButtonReleaseMask    
+				|EventMask.KeyPressMask    
+				|EventMask.PointerMotionMask));
+
+		darea.MotionNotifyEvent += delegate(object o, MotionNotifyEventArgs args) {
+			specialThing.spacials.pos.X = args.Event.X - (darea.Allocation.Width/2);
+			specialThing.spacials.pos.Y = args.Event.Y - (darea.Allocation.Height/2);
+		};
 
 		Add (darea);
 
 		ShowAll();
 
 		//loop ();
-		ThreadPool.QueueUserWorkItem(new WaitCallback(loop));
+		//ThreadPool.QueueUserWorkItem(new WaitCallback(loop));
 
 		GLib.Timeout.Add(14, new GLib.TimeoutHandler(OnTimer));
 	}
@@ -55,30 +70,32 @@ class SharpApp : Gtk.Window {
 
 		cairoContext.Translate(width/2, height/2);
 
+		Circle (cairoContext, specialThing.spacials.pos.X, specialThing.spacials.pos.Y, 10, 1,0,0);
+
 		Circle (cairoContext, 0, 0, world.radius, 0,0,0);
 
 		foreach (var dude in Dude.allTheDudes) {
-			//dude.update ();
+			dude.update ();
 			Circle (cairoContext, dude.spacials.pos.X, dude.spacials.pos.Y, dude.spacials.radius, dude.red,dude.green,dude.blue);
 			Arc(cairoContext, 
 				dude.spacials.pos.X,
 				dude.spacials.pos.Y,
 				dude.spacials.radius*2,
-				dude.spacials.angle -dude.eyeAngle - dude.focus/2,
-				dude.spacials.angle -dude.eyeAngle + dude.focus/2,
+				dude.spacials.angle - dude.eyeAngle - dude.focus/2,
+				dude.spacials.angle - dude.eyeAngle + dude.focus/2,
 				dude.leftEyeSense[0],
 				dude.leftEyeSense[1],
 				dude.leftEyeSense[2]);
 
-			Arc(cairoContext, 
-				dude.spacials.pos.X,
-				dude.spacials.pos.Y,
-				dude.spacials.radius*2,
-				dude.spacials.angle + dude.eyeAngle - dude.focus/2,
-				dude.spacials.angle + dude.eyeAngle + dude.focus/2,
-				dude.rightEyeSense[0],
-				dude.rightEyeSense[1],
-				dude.rightEyeSense[2]);
+//			Arc(cairoContext, 
+//				dude.spacials.pos.X,
+//				dude.spacials.pos.Y,
+//				dude.spacials.radius*2,
+//				dude.spacials.angle + dude.eyeAngle - dude.focus/2,
+//				dude.spacials.angle + dude.eyeAngle + dude.focus/2,
+//				dude.rightEyeSense[0],
+//				dude.rightEyeSense[1],
+//				dude.rightEyeSense[2]);
 			
 		}
 
