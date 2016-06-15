@@ -34,21 +34,29 @@
     <Compile Include="gui.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Package>gtk-sharp-2.0</Package>
+    </Reference>
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Package>gtk-sharp-2.0</Package>
+    </Reference>
+    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Package>gtk-sharp-2.0</Package>
+    </Reference>
     <Reference Include="Mono.Cairo" />
-    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <Package>glib-sharp-2.0</Package>
+    </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dudes\dudes.csproj">
-      <Project>{94BF3A3B-AEBC-48CD-9BC7-3EE0274FEB5E}</Project>
-      <Name>dudes</Name>
-    </ProjectReference>
     <ProjectReference Include="..\world\world.csproj">
       <Project>{EE3B92C9-B393-41C6-A7BF-62B4B19484FD}</Project>
       <Name>world</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\dudes\dudes.csproj">
+      <Project>{94BF3A3B-AEBC-48CD-9BC7-3EE0274FEB5E}</Project>
+      <Name>dudes</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

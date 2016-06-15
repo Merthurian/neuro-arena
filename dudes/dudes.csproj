@@ -38,13 +38,13 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\..\..\gits\CheapAOI\NeuralNetwork\NeuralNetwork.csproj">
-      <Project>{8895EEF3-0A91-456A-AE07-2C820EBB38D9}</Project>
-      <Name>NeuralNetwork</Name>
-    </ProjectReference>
     <ProjectReference Include="..\world\world.csproj">
       <Project>{EE3B92C9-B393-41C6-A7BF-62B4B19484FD}</Project>
       <Name>world</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NeuralNetwork\NeuralNetwork.csproj">
+      <Project>{8895EEF3-0A91-456A-AE07-2C820EBB38D9}</Project>
+      <Name>NeuralNetwork</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
